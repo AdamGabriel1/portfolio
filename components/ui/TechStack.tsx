@@ -29,8 +29,8 @@ export function TechStack({ items, columns = 4, animated = true, className = "" 
             {items.map((tech, index) => (
                 <motion.div
                     key={tech.name}
-                    initial={animated ? { opacity: 0, y: 20 } : false}
-                    whileInView={animated ? { opacity: 1, y: 0 } : false}
+                    initial={animated ? { opacity: 0, y: 20 } : undefined}
+                    whileInView={animated ? { opacity: 1, y: 0 } : undefined}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.1)" }}

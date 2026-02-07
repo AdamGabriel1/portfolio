@@ -40,7 +40,7 @@ export default function CardShowcase() {
                     <p className="text-ghost text-sm mb-4">
                         Card completo com ícone, badge e conteúdo estruturado.
                     </p>
-                    <CyberButton size="sm" variant="electric" className="w-full">
+                    <CyberButton size="sm" variant="primary" className="w-full">
                         Learn More
                     </CyberButton>
                 </GlassCard>
@@ -66,7 +66,7 @@ export default function CardShowcase() {
                             </CyberButton>
                         </div>
                     </div>
-                    <div className="w-full md:w-48 h-32 md:h-auto rounded-xl bg-gradient-to-br from-neon/20 to-electric/20 border border-white/10" />
+                    <div className="w-full md:w-48 h-32 md:h-auto rounded-xl bg-linear-to-br from-neon/20 to-electric/20 border border-white/10" />
                 </div>
             </GlassCard>
         </div>

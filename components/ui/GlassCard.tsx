@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 
 interface GlassCardProps {
     children: ReactNode;
+    title?: string; // Propriedade adicionada para resolver o erro de tipagem
     className?: string;
     hover?: boolean;
     glow?: "none" | "neon" | "electric" | "purple";
@@ -13,6 +14,7 @@ interface GlassCardProps {
 
 export function GlassCard({
     children,
+    title, // Desestruturação do título
     className = "",
     hover = true,
     glow = "none",
@@ -41,7 +43,15 @@ export function GlassCard({
             <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-white/5 to-transparent pointer-events-none" />
 
             {/* Content */}
-            <div className="relative z-10">{children}</div>
+            <div className="relative z-10">
+                {/* Renderização condicional do título */}
+                {title && (
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6 border-l-2 border-white/20 pl-3">
+                        {title}
+                    </h3>
+                )}
+                {children}
+            </div>
 
             {/* Corner decoration */}
             <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-bl from-white/5 to-transparent rounded-tr-2xl pointer-events-none" />

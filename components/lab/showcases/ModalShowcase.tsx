@@ -19,7 +19,7 @@ export default function ModalShowcase() {
                 <CyberButton variant="secondary" onClick={() => setConfirmOpen(true)}>
                     Confirmation Modal
                 </CyberButton>
-                <CyberButton variant="electric" onClick={() => setFormOpen(true)}>
+                <CyberButton variant="primary" onClick={() => setFormOpen(true)}>
                     Form Modal
                 </CyberButton>
             </div>
@@ -31,7 +31,7 @@ export default function ModalShowcase() {
                 title="System Notification"
             >
                 <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center shrink-0">
                         <Info className="w-6 h-6 text-neon" />
                     </div>
                     <div>
@@ -87,7 +87,7 @@ export default function ModalShowcase() {
                         <CyberButton variant="ghost" onClick={() => setFormOpen(false)}>
                             Cancel
                         </CyberButton>
-                        <CyberButton variant="electric" onClick={() => setFormOpen(false)}>
+                        <CyberButton variant="primary" onClick={() => setFormOpen(false)}>
                             Create Project
                         </CyberButton>
                     </div>
