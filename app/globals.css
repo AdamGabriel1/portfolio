@@ -1,0 +1,785 @@
+/* ============================================
+   Adam Portfolio - GLOBAL STYLES
+   Deep Tech / Cyber-Minimalist Design System
+   ============================================ */
+
+@import "tailwindcss";
+
+/* ============================================
+   THEME CONFIGURATION
+   ============================================ */
+@theme {
+  /* Core Colors */
+  --color-void: #030305;
+  --color-deepvoid: #0A0A0F;
+  --color-electric: #8B5CF6;
+  --color-neon: #00F0FF;
+  --color-plasma: #FF006E;
+  --color-neural: #F0F0F5;
+  --color-ghost: #6B6B7B;
+
+  /* Extended Colors */
+  --color-cyber: #0ea5e9;
+  --color-matrix: #00ff41;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-neural);
+  cursor: none;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.4);
+  color: var(--color-neon);
+  text-shadow: 0 0 10px var(--color-neon);
+}
+
+/* ============================================
+   GLASSMORPHISM SYSTEM
+   ============================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-hover {
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.glass-hover:hover {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow:
+    0 0 40px rgba(139, 92, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.glass-glow {
+  background: rgba(10, 10, 15, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  box-shadow:
+    0 0 60px rgba(139, 92, 246, 0.1),
+    0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-electric) 0%, var(--color-neon) 50%, var(--color-plasma) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-flow 8s ease infinite;
+}
+
+.text-electric {
+  color: var(--color-electric);
+}
+
+.text-neon {
+  color: var(--color-neon);
+}
+
+.text-plasma {
+  color: var(--color-plasma);
+}
+
+.text-ghost {
+  color: var(--color-ghost);
+}
+
+.text-glow {
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+.text-glow-soft {
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+/* ============================================
+   BACKGROUND UTILITIES
+   ============================================ */
+.bg-void {
+  background-color: var(--color-void);
+}
+
+.bg-deepvoid {
+  background-color: var(--color-deepvoid);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-grid-sm {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-radial-glow {
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+}
+
+.bg-noise {
+  position: relative;
+}
+
+.bg-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg '%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   BORDER UTILITIES
+   ============================================ */
+.border-electric {
+  border-color: var(--color-electric);
+}
+
+.border-neon {
+  border-color: var(--color-neon);
+}
+
+.border-gradient {
+  position: relative;
+  border: none;
+}
+
+.border-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--color-electric), var(--color-neon));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* ============================================
+   CUSTOM CURSOR
+   ============================================ */
+.cursor-dot,
+.cursor-outline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-neon);
+  box-shadow: 0 0 10px var(--color-neon);
+}
+
+.cursor-outline {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 240, 255, 0.6);
+  transition: all 0.15s ease-out;
+}
+
+.cursor-outline.hover {
+  width: 56px;
+  height: 56px;
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--color-electric);
+  mix-blend-mode: normal;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-electric), var(--color-neon));
+  border-radius: 4px;
+  border: 2px solid var(--color-void);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon);
+  box-shadow: 0 0 10px var(--color-neon);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-void);
+}
+
+/* Custom scrollbar variants */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.5);
+  border-radius: 3px;
+  border: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.7);
+}
+
+/* ============================================
+   ANIMATION KEYFRAMES
+   ============================================ */
+@keyframes gradient-flow {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    opacity: 1;
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    opacity: 0.9;
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(var(--orbit-radius, 100px)) rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg) translateX(var(--orbit-radius, 100px)) rotate(-360deg);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes flicker {
+
+  0%,
+  100% {
+    opacity: 0.02;
+  }
+
+  50% {
+    opacity: 0.05;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes holographic {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes encryption-pulse {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-orbit {
+  animation: orbit var(--orbit-duration, 20s) linear infinite;
+}
+
+.animate-scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-scanline::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 240, 255, 0.2), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+}
+
+.animate-flicker {
+  animation: flicker 0.15s infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+
+.animate-holographic {
+  background: linear-gradient(135deg,
+      rgba(139, 92, 246, 0.1) 0%,
+      rgba(0, 240, 255, 0.1) 25%,
+      rgba(255, 0, 110, 0.1) 50%,
+      rgba(0, 240, 255, 0.1) 75%,
+      rgba(139, 92, 246, 0.1) 100%);
+  background-size: 400% 400%;
+  animation: holographic 8s ease infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3s steps(40, end);
+}
+
+.animate-encryption {
+  animation: encryption-pulse 0.5s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Glitch effect utilities */
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  animation: glitch-1 0.3s infinite linear alternate-reverse;
+  color: #ff00ff;
+  z-index: -1;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+
+.glitch-text::after {
+  animation: glitch-2 0.3s infinite linear alternate-reverse;
+  color: #00ffff;
+  z-index: -2;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch-1 {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-3px, 3px);
+  }
+
+  40% {
+    transform: translate(-3px, -3px);
+  }
+
+  60% {
+    transform: translate(3px, 3px);
+  }
+
+  80% {
+    transform: translate(3px, -3px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes glitch-2 {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(3px, -3px);
+  }
+
+  40% {
+    transform: translate(3px, 3px);
+  }
+
+  60% {
+    transform: translate(-3px, -3px);
+  }
+
+  80% {
+    transform: translate(-3px, 3px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* CRT Effect overlay */
+.crt-overlay {
+  position: relative;
+}
+
+.crt-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Hexagon shape */
+.hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Tech grid pattern */
+.tech-grid {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(139, 92, 246, 0.15) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Selection in terminal */
+.terminal-selection::selection {
+  background: rgba(0, 240, 255, 0.3);
+  color: #fff;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cursor-dot,
+  .cursor-outline {
+    display: none;
+  }
+
+  body {
+    cursor: auto;
+  }
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+@media (max-width: 768px) {
+
+  .cursor-dot,
+  .cursor-outline {
+    display: none;
+  }
+
+  body {
+    cursor: auto;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+
+  .cursor-dot,
+  .cursor-outline,
+  .crt-overlay::before,
+  .animate-scanline::after {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ============================================
+   ADDITIONAL UTILITIES FOR NEW COMPONENTS
+   ============================================ */
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Aspect ratio utilities */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Backdrop blur utilities */
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Transition utilities */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Will-change for performance */
+.will-change-transform {
+  will-change: transform;
+}
