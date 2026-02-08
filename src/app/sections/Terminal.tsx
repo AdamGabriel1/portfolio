@@ -15,8 +15,33 @@ import {
     Copy,
     Lock,
     Unlock,
-    Wifi
+    Wifi,
+    Server
 } from "lucide-react";
+
+// ==========================================
+// TYPES
+// ==========================================
+interface SystemStatus {
+    status: string;
+    uptime: string;
+    cpu_load: number;
+    memory_mb: number;
+    latency_ms: number;
+}
+
+interface TelemetryData {
+    cpu: number;
+    memory: number;
+    latency: number;
+    uptime: string;
+    lastUpdate: Date;
+}
+
+// ==========================================
+// API CONFIGURATION
+// ==========================================
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 // ==========================================
 // TYPING EFFECT COMPONENT
@@ -64,7 +89,7 @@ const TerminalLine = ({
     delay = 0
 }: {
     content: string;
-    type?: "input" | "output" | "error" | "success" | "system";
+    type?: "input" | "output" | "error" | "success" | "system" | "api";
     delay?: number;
 }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -79,7 +104,8 @@ const TerminalLine = ({
         output: "text-white/70",
         error: "text-plasma",
         success: "text-green-400",
-        system: "text-electric"
+        system: "text-electric",
+        api: "text-yellow-400"
     };
 
     const prefixes = {
@@ -87,7 +113,8 @@ const TerminalLine = ({
         output: "",
         error: "[ERROR] ",
         success: "[SUCCESS] ",
-        system: "[SYSTEM] "
+        system: "[SYSTEM] ",
+        api: "[API] "
     };
 
     return (
@@ -150,6 +177,9 @@ export default function Terminal() {
     const [terminalHistory, setTerminalHistory] = useState<{ type: string; content: string }[]>([]);
     const [isEncrypting, setIsEncrypting] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
+    const [apiConnected, setApiConnected] = useState(false);
+    const [transactionId, setTransactionId] = useState("");
     const terminalRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -172,8 +202,47 @@ export default function Terminal() {
         setTerminalHistory(prev => [...prev, { type, content }]);
     }, []);
 
+    // Fetch telemetry data from Go backend
+    const fetchTelemetry = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/v1/telemetry`);
+            if (!response.ok) throw new Error("Failed to fetch telemetry");
+
+            const data: SystemStatus = await response.json();
+            setTelemetry({
+                cpu: data.cpu_load,
+                memory: data.memory_mb,
+                latency: data.latency_ms,
+                uptime: data.uptime,
+                lastUpdate: new Date()
+            });
+            setApiConnected(true);
+            addToHistory("api", `Telemetry updated: CPU ${data.cpu_load.toFixed(1)}% | MEM ${data.memory_mb}MB`);
+        } catch (error) {
+            console.error("Telemetry error:", error);
+            setApiConnected(false);
+            addToHistory("error", "Failed to connect to telemetry server");
+        }
+    }, [addToHistory]);
+
+    // Check API health on mount
     useEffect(() => {
-        // Initial terminal boot sequence
+        const checkHealth = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setApiConnected(true);
+                    addToHistory("success", `Connected to ${data.engine} backend v${data.version}`);
+                    // Fetch initial telemetry
+                    fetchTelemetry();
+                }
+            } catch (error) {
+                addToHistory("error", "Backend connection failed - running in offline mode");
+            }
+        };
+
+        // Initial boot sequence
         const bootSequence = [
             { type: "system", content: "Initializing secure connection...", delay: 100 },
             { type: "system", content: "TLS 1.3 handshake complete", delay: 400 },
@@ -184,7 +253,14 @@ export default function Terminal() {
         bootSequence.forEach(({ type, content, delay }) => {
             setTimeout(() => addToHistory(type, content), delay);
         });
-    }, [addToHistory]);
+
+        // Check health after boot
+        setTimeout(checkHealth, 1200);
+
+        // Set up telemetry polling every 5 seconds
+        const interval = setInterval(fetchTelemetry, 5000);
+        return () => clearInterval(interval);
+    }, [addToHistory, fetchTelemetry]);
 
     useEffect(() => {
         if (terminalRef.current) {
@@ -204,19 +280,44 @@ export default function Terminal() {
         setLoading(true);
         setIsEncrypting(true);
 
-        // Simulate encryption process
         addToHistory("system", "Encrypting payload...");
         await new Promise(resolve => setTimeout(resolve, 800));
         addToHistory("system", "RSA-4096 encryption applied");
         addToHistory("system", "Transmitting to secure server...");
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const response = await fetch(`${API_BASE_URL}/v1/contact`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    project_type: formData.projectType,
+                    budget: formData.budget,
+                    message: formData.message,
+                }),
+            });
 
-        setLoading(false);
-        setIsEncrypting(false);
-        setSubmitted(true);
-        addToHistory("success", "Message transmitted successfully");
-        addToHistory("success", `Transaction ID: ADAM-${Date.now().toString(36).toUpperCase()}`);
+            if (!response.ok) {
+                throw new Error("Failed to send message");
+            }
+
+            const data = await response.json();
+            setTransactionId(data.transaction_id);
+
+            setLoading(false);
+            setIsEncrypting(false);
+            setSubmitted(true);
+            addToHistory("success", "Message transmitted successfully");
+            addToHistory("success", `Transaction ID: ${data.transaction_id}`);
+        } catch (error) {
+            setLoading(false);
+            setIsEncrypting(false);
+            addToHistory("error", "Transmission failed. Please try again.");
+            console.error("Submit error:", error);
+        }
     };
 
     const copyToClipboard = (text: string) => {
@@ -241,16 +342,13 @@ export default function Terminal() {
         <section id="terminal" className="relative py-32 bg-void min-h-screen overflow-hidden">
             {/* CRT Effects Overlay */}
             <div className="absolute inset-0 pointer-events-none z-50">
-                {/* Scanlines */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-length:100%_2px,3px_100% opacity-20" />
-                {/* Screen flicker */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20" />
                 <div className="absolute inset-0 bg-white/5 opacity-0 animate-[flicker_0.15s_infinite]" />
-                {/* Vignette */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]" />
             </div>
 
             {/* Background Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-size:40px_40px" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Header */}
@@ -264,6 +362,12 @@ export default function Terminal() {
                     <div className="font-mono text-neon text-sm mb-4 tracking-widest flex items-center justify-center gap-2">
                         <Lock className="w-4 h-4" />
                         [SECTOR_03] // SECURE_CHANNEL
+                        {apiConnected && (
+                            <span className="flex items-center gap-1 text-green-400 ml-2">
+                                <Server className="w-3 h-3" />
+                                API:ONLINE
+                            </span>
+                        )}
                     </div>
                     <h2 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
                         <GlitchText text="CONTATO" />
@@ -302,8 +406,8 @@ export default function Terminal() {
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-xs font-mono text-ghost">
-                                    <Wifi className="w-3 h-3 text-green-400" />
-                                    <span>ONLINE</span>
+                                    <Wifi className={`w-3 h-3 ${apiConnected ? 'text-green-400' : 'text-red-400'}`} />
+                                    <span>{apiConnected ? 'ONLINE' : 'OFFLINE'}</span>
                                 </div>
                             </div>
 
@@ -471,7 +575,7 @@ export default function Terminal() {
                                         <div className="glass p-6 rounded-lg border border-green-400/30 space-y-3">
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-white/50">Transaction ID:</span>
-                                                <span className="text-neon font-mono">#ADAM-{Date.now().toString(36).toUpperCase()}</span>
+                                                <span className="text-neon font-mono">#{transactionId}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-white/50">Encryption:</span>
@@ -484,7 +588,7 @@ export default function Terminal() {
                                         </div>
 
                                         <button
-                                            onClick={() => copyToClipboard(`Transaction ID: #ADAM-${Date.now().toString(36).toUpperCase()}`)}
+                                            onClick={() => copyToClipboard(`Transaction ID: #${transactionId}`)}
                                             className="flex items-center gap-2 text-sm text-ghost hover:text-white transition-colors"
                                         >
                                             {copySuccess ? (
@@ -513,6 +617,55 @@ export default function Terminal() {
                         viewport={{ once: true }}
                         className="lg:col-span-2 space-y-6"
                     >
+                        {/* Live Telemetry from Go Backend */}
+                        <div className="glass rounded-xl p-6 border border-white/10">
+                            <h3 className="text-sm font-mono text-neon mb-4 flex items-center gap-2">
+                                <Cpu className="w-4 h-4" />
+                                SYSTEM_TELEMETRY
+                                {telemetry && (
+                                    <span className="text-xs text-green-400 ml-auto animate-pulse">
+                                        LIVE
+                                    </span>
+                                )}
+                            </h3>
+                            {telemetry ? (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                        <span className="text-white/50 text-sm">CPU Load</span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-electric transition-all duration-500"
+                                                    style={{ width: `${telemetry.cpu}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-electric font-mono text-sm w-12 text-right">
+                                                {telemetry.cpu.toFixed(1)}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                        <span className="text-white/50 text-sm">Memory</span>
+                                        <span className="text-neon font-mono text-sm">{telemetry.memory} MB</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                        <span className="text-white/50 text-sm">Latency</span>
+                                        <span className={`font-mono text-sm ${telemetry.latency < 30 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                            {telemetry.latency}ms
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                        <span className="text-white/50 text-sm">Uptime</span>
+                                        <span className="text-white/70 font-mono text-xs">{telemetry.uptime}</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-4 text-white/30 text-sm">
+                                    {apiConnected ? "Loading telemetry..." : "No connection to backend"}
+                                </div>
+                            )}
+                        </div>
+
                         {/* Security Status */}
                         <div className="glass rounded-xl p-6 border border-white/10">
                             <h3 className="text-sm font-mono text-neon mb-4 flex items-center gap-2">
@@ -521,16 +674,16 @@ export default function Terminal() {
                             </h3>
                             <div className="space-y-3">
                                 {[
-                                    { label: "Connection", value: "TLS 1.3", status: "secure" },
+                                    { label: "Connection", value: apiConnected ? "TLS 1.3" : "DISCONNECTED", status: apiConnected ? "secure" : "error" },
                                     { label: "Encryption", value: "AES-256", status: "secure" },
-                                    { label: "Certificate", value: "Valid", status: "secure" },
+                                    { label: "Backend", value: apiConnected ? "Go/Gin" : "OFFLINE", status: apiConnected ? "secure" : "error" },
                                     { label: "IP Masking", value: "Active", status: "secure" }
                                 ].map((item) => (
                                     <div key={item.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                                         <span className="text-white/50 text-sm">{item.label}</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-white font-mono text-sm">{item.value}</span>
-                                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                            <div className={`w-2 h-2 rounded-full animate-pulse ${item.status === 'secure' ? 'bg-green-400' : 'bg-red-400'}`} />
                                         </div>
                                     </div>
                                 ))}
@@ -540,7 +693,7 @@ export default function Terminal() {
                         {/* Quick Stats */}
                         <div className="glass rounded-xl p-6 border border-white/10">
                             <h3 className="text-sm font-mono text-neon mb-4 flex items-center gap-2">
-                                <Cpu className="w-4 h-4" />
+                                <Zap className="w-4 h-4" />
                                 AVAILABILITY
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
@@ -590,55 +743,55 @@ export default function Terminal() {
 
             {/* CSS for CRT effects */}
             <style jsx>{`
-        @keyframes flicker {
-          0%, 100% { opacity: 0.02; }
-          50% { opacity: 0.05; }
-        }
-        
-        .glitch-text {
-          position: relative;
-        }
-        
-        .glitch-text::before,
-        .glitch-text::after {
-          content: attr(data-text);
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        }
-        
-        .glitch-text::before {
-          animation: glitch-1 0.3s infinite linear alternate-reverse;
-          color: #ff00ff;
-          z-index: -1;
-        }
-        
-        .glitch-text::after {
-          animation: glitch-2 0.3s infinite linear alternate-reverse;
-          color: #00ffff;
-          z-index: -2;
-        }
-        
-        @keyframes glitch-1 {
-          0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 0); }
-          20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
-          40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 0); }
-          60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, 0); }
-          80% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
-          100% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 0); }
-        }
-        
-        @keyframes glitch-2 {
-          0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, 0); }
-          20% { clip-path: inset(30% 0 20% 0); transform: translate(-2px, 0); }
-          40% { clip-path: inset(70% 0 10% 0); transform: translate(2px, 0); }
-          60% { clip-path: inset(20% 0 50% 0); transform: translate(-2px, 0); }
-          80% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 0); }
-          100% { clip-path: inset(0% 0 80% 0); transform: translate(-2px, 0); }
-        }
-      `}</style>
+                @keyframes flicker {
+                    0%, 100% { opacity: 0.02; }
+                    50% { opacity: 0.05; }
+                }
+                
+                .glitch-text {
+                    position: relative;
+                }
+                
+                .glitch-text::before,
+                .glitch-text::after {
+                    content: attr(data-text);
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+                
+                .glitch-text::before {
+                    animation: glitch-1 0.3s infinite linear alternate-reverse;
+                    color: #ff00ff;
+                    z-index: -1;
+                }
+                
+                .glitch-text::after {
+                    animation: glitch-2 0.3s infinite linear alternate-reverse;
+                    color: #00ffff;
+                    z-index: -2;
+                }
+                
+                @keyframes glitch-1 {
+                    0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 0); }
+                    20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+                    40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 0); }
+                    60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, 0); }
+                    80% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
+                    100% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 0); }
+                }
+                
+                @keyframes glitch-2 {
+                    0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, 0); }
+                    20% { clip-path: inset(30% 0 20% 0); transform: translate(-2px, 0); }
+                    40% { clip-path: inset(70% 0 10% 0); transform: translate(2px, 0); }
+                    60% { clip-path: inset(20% 0 50% 0); transform: translate(-2px, 0); }
+                    80% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 0); }
+                    100% { clip-path: inset(0% 0 80% 0); transform: translate(-2px, 0); }
+                }
+            `}</style>
         </section>
     );
 }

@@ -1,0 +1,33 @@
+services:
+  # O seu portfólio Next.js
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_GO_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_PYTHON_API_URL=http://localhost:8000
+    networks:
+      - portfolio-network
+
+  # Backend em Go (Ex: Encurtador ou Métricas do Terminal)
+  go-api:
+    build: ./services/go-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - portfolio-network
+
+  # Backend em Python (Ex: Resumidor de textos com IA para o Lab)
+  python-api:
+    build: ./services/python-backend
+    ports:
+      - "8000:8000"
+    networks:
+      - portfolio-network
+
+networks:
+  portfolio-network:
+    driver: bridge
