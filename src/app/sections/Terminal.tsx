@@ -41,7 +41,7 @@ interface TelemetryData {
 // ==========================================
 // API CONFIGURATION
 // ==========================================
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // ==========================================
 // TYPING EFFECT COMPONENT
@@ -205,7 +205,7 @@ export default function Terminal() {
     // Fetch telemetry data from Go backend
     const fetchTelemetry = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/v1/telemetry`);
+            const response = await fetch(`${API_BASE}/telemetry`);
             if (!response.ok) throw new Error("Failed to fetch telemetry");
 
             const data: SystemStatus = await response.json();
@@ -229,7 +229,7 @@ export default function Terminal() {
     useEffect(() => {
         const checkHealth = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/health`);
+                const response = await fetch(`${API_BASE}/health`);
                 if (response.ok) {
                     const data = await response.json();
                     setApiConnected(true);
@@ -286,7 +286,7 @@ export default function Terminal() {
         addToHistory("system", "Transmitting to secure server...");
 
         try {
-            const response = await fetch(`${API_BASE_URL}/v1/contact`, {
+            const response = await fetch(`${API_BASE}/contact`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -342,13 +342,13 @@ export default function Terminal() {
         <section id="terminal" className="relative py-32 bg-void min-h-screen overflow-hidden">
             {/* CRT Effects Overlay */}
             <div className="absolute inset-0 pointer-events-none z-50">
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-length:100%_2px,3px_100% opacity-20" />
                 <div className="absolute inset-0 bg-white/5 opacity-0 animate-[flicker_0.15s_infinite]" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]" />
             </div>
 
             {/* Background Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-size:40px_40px" />
 
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Header */}
