@@ -41,7 +41,7 @@ interface TelemetryData {
 // ==========================================
 // API CONFIGURATION
 // ==========================================
-const API_BASE = 'api/';
+const API_BASE = '/api';
 
 // ==========================================
 // TYPING EFFECT COMPONENT

@@ -5,8 +5,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/telemetry',
-        destination: 'http://localhost:8080/api/telemetry', // Porta onde seu Go está rodando
+        source: '/api/:path*',
+        destination: 'http://localhost:8081/api/:path*', // Porta onde seu Go está rodando
       },
     ];
   },
